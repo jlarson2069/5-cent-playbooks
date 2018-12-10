@@ -1,0 +1,37 @@
+---
+# Pull backup from the PC7048 to the backup directory
+# author: Jordan Larson
+# date: 07/15/2018
+# version: 0.1
+# ansible-playbook -i ./controller unifi-backup.yml
+# https://github.com/stackhpc/ansible-role-dell-powerconnect-switch/blob/master/tasks/main.yml#L39
+# Leverage above for inspiration
+
+- name: Collect Backup of switch configuration
+  hosts: powerconnect
+  gather_facts: false
+  vars:
+     reboot: "false"
+
+  tasks:
+
+  - name: Start tftp services
+    systemd: 
+      state: started
+      name: tftp-hpa
+    delegate_to: localhost
+
+  - name: Dump switch config to tftpshare
+    raw:
+      mode: pull
+    register: sync_results
+
+  - name: Display results of syncronize
+    debug:
+      var: sync_results.stdout_lines
+
+  - name: Stop tftp services
+    systemd:
+      state: stopped
+      name: tftpd-hpa
+    delegate_to: localhost

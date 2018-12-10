@@ -1,0 +1,27 @@
+---
+# Pull backup from the unifi controller back to the management box
+# author: jlarson2069
+# date: 07/08/2018
+# version: 0.1
+# ansible-playbook unifi-backup.yml
+
+- name: Collect Unifi Local Backup
+  hosts: ubiquiti
+  gather_facts: true
+  vars:
+    reboot: "false"
+
+  tasks:
+
+  - name: Rsync unifi controller backups to /backup
+    synchronize:
+      mode: pull
+      src: /var/lib/unifi/backup/autobackup/
+      dest: /backup/unifi
+      owner: no
+      group: no
+    register: sync_results
+
+  - name: Display results of syncronize
+    debug:
+      var: sync_results.stdout_lines

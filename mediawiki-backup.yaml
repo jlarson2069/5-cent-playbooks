@@ -1,0 +1,38 @@
+---
+# Take a backup of apache/mediawiki pieces before upgrade or just because
+# author: jlarson2069
+# date: 12/09/2019
+# version: 0.1
+# ansible-playbook -i ./test/inventory mediawiki-backup.yaml
+
+- name: Backup MediaWiki Installation
+  hosts: localhost
+  gather_facts: false
+  vars:
+     mw_maint: "/var/www/html/mw/maintenance/"
+     mw_base: "/var/www/html/mw/"
+     mw_backup: "/backup/mediawiki/"
+     apache_main: "/etc/apache2/"
+
+  tasks:
+
+  - name: Take Dump of sqlite
+    shell: php "{{ mw_maint }}"sqlite.php --backup-to /backup/mediawiki/sqlite_backup
+
+  - name: Copy local apache/mediawiki config files
+    copy: 
+      src: "{{ item }}"
+      dest: "{{ mw_backup }}"
+      owner: root
+      group: root
+      mode: 0770
+    loop:
+      - "{{ mw_base }}LocalSettings.php"
+      - "{{ apache_main }}sites-available/default-ssl.conf"
+      - "{{ apache_main }}sites-available/wiki.conf"
+      - "/var/www/html/index.html"
+
+  - name: Take copy of images that have been uploaded
+    synchronize:
+      src: "{{ mw_base }}images"
+      dest: "{{ mw_backup }}"

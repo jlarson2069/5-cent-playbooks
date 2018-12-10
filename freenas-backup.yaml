@@ -1,0 +1,29 @@
+---
+# Pull the nightly FreeNAS DB Run that stores the configuration
+# author: jlarson2069
+# date: 12/09/2019
+# version: 0.1
+# ansible-playbook freenas-backup.yaml 
+
+- name: Backup FreeNAS DB
+  hosts: freenas
+  gather_facts: true
+  vars:
+    ansible_shell_type: csh
+    ansible_python_interpreter: /usr/local/bin/python
+    freenas_base: "/var/db/system/configs-158573087357441f946652be707b999d/"
+    freenas_ver: "FreeNAS-11.2-RELEASE\ \(31f889bbf\)/"
+
+  tasks:
+
+  - name: Copy FreeNAS DB Backup
+    fetch:
+      src: "{{ freenas_base }}{{ freenas_ver }}{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day}}.db"
+      dest: /backup/freenas
+      validate_checksum: no
+      flat: yes
+    register: fetch
+
+  - name: Display results of syncronize
+    debug:
+      var: fetch.stdout_lines

@@ -1,0 +1,17 @@
+---
+# Cut filesystems for unifi controller
+# author: jlarson2069
+# date: 07/08/2018
+# version: 0.1
+# ansible-playbook -i 
+
+- name: Create filesystems for unifi controller
+  hosts: ubiquiti
+  gather_facts: false
+  vars:
+     reboot: "false"
+
+  tasks:
+
+  - name: Create Logical Volumes
+  - name: Create Filesystems
